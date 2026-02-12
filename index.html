@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GA4 Intelligence Agent</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0f;
+            color: #e5e7eb;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Header */
+        .hero {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero .subtitle {
+            font-size: 1.1rem;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+            font-weight: 400;
+        }
+
+        .hero .meta {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .hero .meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Card Base */
+        .card {
+            background: #12121a;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .kpi-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card .label {
+            font-size: 0.85rem;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-card .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #f9fafb;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-card .change {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+        }
+
+        .kpi-card .change.positive {
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .kpi-card .change.negative {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .sparkline {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            width: 120px;
+            height: 40px;
+            opacity: 0.3;
+        }
+
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        /* AI Briefing */
+        .ai-briefing {
+            background: linear-gradient(135deg, #1e1b4b 0%, #12121a 100%);
+        }
+
+        .ai-briefing h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .ai-briefing .content {
+            background: rgba(99, 102, 241, 0.05);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            line-height: 1.8;
+            font-size: 0.95rem;
+        }
+
+        .ai-briefing .content p {
+            margin-bottom: 1.2rem;
+        }
+
+        .ai-briefing .content p:last-child {
+            margin-bottom: 0;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(99, 102, 241, 0.2);
+            font-size: 0.85rem;
+            color: #9ca3af;
+        }
+
+        /* Chat Interface */
+        .chat-interface h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chat-icon {
+            display: inline-block;
+        }
+
+        .chat-history {
+            margin-bottom: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .chat-message {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .chat-message.user {
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 3px solid #6366f1;
+        }
+
+        .chat-message.agent {
+            background: rgba(16, 185, 129, 0.05);
+            border-left: 3px solid #10b981;
+        }
+
+        .chat-message .role {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            opacity: 0.7;
+        }
+
+        .chat-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .chip {
+            padding: 0.5rem 1rem;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chip:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: #6366f1;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: #e5e7eb;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+
+        .chat-input button {
+            background: #6366f1;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chat-input button:hover {
+            background: #4f46e5;
+        }
+
+        /* Charts Row */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        /* Content Intelligence */
+        .content-intelligence {
+            margin: 2rem 0;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.1);
+        }
+
+        .content-intelligence h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .content-section {
+            margin-bottom: 2rem;
+        }
+
+        .content-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .content-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #a78bfa;
+            font-weight: 600;
+        }
+
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .content-table thead {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .content-table th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            font-size: 0.8rem;
+            color: #9ca3af;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .content-table td {
+            padding: 1rem;
+            font-size: 0.9rem;
+            border: none;
+        }
+
+        .content-table tbody tr {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .content-table tbody tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .content-table tbody tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .confidence-score {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .score-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .score-a-plus {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+        }
+
+        .score-a {
+            background: rgba(52, 211, 153, 0.15);
+            color: #34d399;
+        }
+
+        .score-b-minus {
+            background: rgba(251, 191, 36, 0.15);
+            color: #fbbf24;
+        }
+
+        .score-c-plus {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+        }
+
+        .insight-list {
+            list-style: none;
+        }
+
+        .insight-list li {
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            border-left: 3px solid #6366f1;
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .insight-list li:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        /* Competitor Pulse */
+        .competitor-pulse {
+            margin: 2rem 0;
+        }
+
+        .competitor-pulse h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .competitor-pulse .subtitle {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .insights-link {
+            color: #6366f1;
+            text-decoration: underline;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .insights-link:hover {
+            color: #818cf8;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: #12121a;
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.3);
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 2rem;
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: transparent;
+            border: none;
+            color: #9ca3af;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .modal-report {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: #e5e7eb;
+            white-space: pre-wrap;
+        }
+
+        /* Activity Feed */
+        .activity-feed {
+            margin: 2rem 0;
+        }
+
+        .activity-feed h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .cluster-summary {
+            font-size: 0.85rem;
+            color: #9ca3af;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .cluster-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .refresh-control {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .refresh-btn {
+            background: transparent;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 8px;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: #6366f1;
+        }
+
+        .refresh-btn svg {
+            width: 18px;
+            height: 18px;
+            transition: transform 0.6s ease;
+        }
+
+        .refresh-btn.spinning svg {
+            animation: spin 1s ease;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .refresh-status {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .activity-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .activity-item .icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .status-green {
+            color: #10b981;
+        }
+
+        .status-blue {
+            color: #3b82f6;
+        }
+
+        .status-gold {
+            color: #fbbf24;
+        }
+
+        .status-red {
+            color: #ef4444;
+        }
+
+        .status-yellow {
+            color: #fbbf24;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin-top: 3rem;
+        }
+
+        .footer .tagline {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #9ca3af;
+        }
+
+        .footer a {
+            color: #6366f1;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer a:hover {
+            color: #a78bfa;
+        }
+
+        .footer .demo-note {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.2);
+            margin-top: 1rem;
+        }
+
+        /* Forecast specific */
+        .forecast-annotation {
+            font-size: 0.85rem;
+            color: #10b981;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: rgba(16, 185, 129, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid #10b981;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .main-grid,
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .kpi-card .value {
+                font-size: 2rem;
+            }
+
+            .content-table {
+                font-size: 0.8rem;
+            }
+
+            .content-table th,
+            .content-table td {
+                padding: 0.5rem;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.5);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero -->
+        <div class="hero">
+            <h1>GA4 Intelligence Agent</h1>
+            <p class="subtitle">Built in less than 10 minutes — with an AI system that thinks and a digital advisory board.</p>
+            <div class="meta">
+                <span><div class="live-dot"></div> Live: <span id="live-time">00:00:00</span></span>
+                <span>Last sync: just now</span>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="card kpi-card">
+                <div class="label">Total Users</div>
+                <div class="value" data-target="1847">0</div>
+                <span class="change positive"><span style="color:#10b981">▲</span> +23.4%</span>
+                <svg class="sparkline" viewBox="0 0 120 40" preserveAspectRatio="none">
+                    <path d="M0,35 L17,30 L34,32 L51,28 L68,25 L85,22 L102,18 L120,15" 
+                          stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round"/>
+                </svg>
+            </div>
+            
+            <div class="card kpi-card">
+                <div class="label">Sessions</div>
+                <div class="value" data-target="2431">0</div>
+                <span class="change positive"><span style="color:#10b981">▲</span> +18.7%</span>
+                <svg class="sparkline" viewBox="0 0 120 40" preserveAspectRatio="none">
+                    <path d="M0,38 L17,33 L34,35 L51,30 L68,27 L85,24 L102,20 L120,17" 
+                          stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round"/>
+                </svg>
+            </div>
+            
+            <div class="card kpi-card">
+                <div class="label">Avg Session Duration</div>
+                <div class="value" data-target="4" style="font-size: 2rem;">0m 0s</div>
+                <span class="change positive"><span style="color:#10b981">▲</span> +8.2%</span>
+                <svg class="sparkline" viewBox="0 0 120 40" preserveAspectRatio="none">
+                    <path d="M0,36 L17,34 L34,33 L51,31 L68,29 L85,26 L102,23 L120,20" 
+                          stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round"/>
+                </svg>
+            </div>
+            
+            <div class="card kpi-card">
+                <div class="label">Bounce Rate</div>
+                <div class="value" data-target="34.2">0%</div>
+                <span class="change positive"><span style="color:#10b981">▼</span> -5.1%</span>
+                <svg class="sparkline" viewBox="0 0 120 40" preserveAspectRatio="none">
+                    <path d="M0,15 L17,18 L34,20 L51,23 L68,25 L85,28 L102,32 L120,35" 
+                          stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- AI Briefing -->
+            <div class="card ai-briefing">
+                <h2>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/>
+                    </svg>
+                    AI Daily Briefing
+                </h2>
+                <div class="content">
+                    <p>Good morning. Here's what happened on your site in the last 24 hours:</p>
+                    
+                    <p><span style="color:#10b981">▲</span> Traffic surged 23% — driven primarily by a LinkedIn post published yesterday at 2:14 PM. That single post generated 312 new users via mobile (67% of total new traffic).</p>
+                    
+                    <p><span style="color:#f59e0b">◆</span> Top performing content: <strong>/blog/ai-productivity-tips</strong> held visitors for an average of 4.2 minutes — 3x your site average. 12% of readers clicked through to your newsletter signup.</p>
+                    
+                    <p><span style="color:#fbbf24">△</span> Concern: Your <strong>/pricing</strong> page has a 78% bounce rate (up from 52% last week). Users are spending only 18 seconds before leaving. Hypothesis: the 3-tier pricing structure is creating decision paralysis. Recommendation: A/B test a simplified 2-tier layout.</p>
+                    
+                    <p><span style="color:#6366f1">◎</span> Geographic anomaly: 340 sessions from São Paulo in the last 6 hours — unusual for your traffic profile. Appears organic (low bounce, 3+ pages/session). Possible cause: your post was shared in a Brazilian tech Telegram group.</p>
+                    
+                    <p><span style="color:#a78bfa">✦</span> Opportunity: Your "AI automation" keyword cluster is ranking #8-12 on Google for 6 terms. With 2-3 targeted blog posts, you could break into top 5 and capture an estimated 1,200 additional monthly organic visits.</p>
+                    
+                    <p>Next automated briefing: Tomorrow, 7:00 AM.</p>
+                </div>
+            </div>
+
+            <!-- Chat Interface -->
+            <div class="card chat-interface">
+                <h3>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="display: inline-block;">
+                        <defs>
+                            <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#6366f1"/>
+                                <stop offset="100%" style="stop-color:#818cf8"/>
+                            </linearGradient>
+                        </defs>
+                        <circle cx="12" cy="8" r="2.5" stroke="url(#iconGradient)" stroke-width="2" fill="none"/>
+                        <circle cx="7" cy="14" r="2.5" stroke="url(#iconGradient)" stroke-width="2" fill="none"/>
+                        <circle cx="17" cy="14" r="2.5" stroke="url(#iconGradient)" stroke-width="2" fill="none"/>
+                        <circle cx="12" cy="19" r="2.5" stroke="url(#iconGradient)" stroke-width="2" fill="none"/>
+                        <path d="M10.5 9.5L8.5 12.5M13.5 9.5L15.5 12.5M9 15.5L10.5 17.5M15 15.5L13.5 17.5" stroke="url(#iconGradient)" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M16 4L15 6M8 4L9 6M20 10L18 11M4 10L6 11" stroke="url(#iconGradient)" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+                    </svg>
+                    Ask Your Data
+                </h3>
+                
+                <div class="chat-history">
+                    <div class="chat-message user">
+                        <div class="role">You</div>
+                        <div>Why did signups drop last Thursday?</div>
+                    </div>
+                    <div class="chat-message agent">
+                        <div class="role">Agent</div>
+                        <div>Signups dropped 34% on Thursday. Root cause: your Stripe checkout page had a 4.2s load time (vs normal 1.1s). This correlated with a Cloudflare incident from 14:00-18:00 UTC. Affected users: primarily mobile (iOS Safari). Estimated lost signups: 23. Recommendation: implement checkout page caching and set up a latency alert threshold at 2s.</div>
+                    </div>
+                </div>
+
+                <div class="chat-chips">
+                    <div class="chip">Why did traffic spike on Tuesday?</div>
+                    <div class="chip">Which content converts best?</div>
+                    <div class="chip">Compare this week vs last week</div>
+                </div>
+
+                <div class="chat-input">
+                    <input type="text" placeholder="Ask anything about your analytics...">
+                    <button>Send</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-row">
+            <!-- Traffic Chart -->
+            <div class="card">
+                <div class="chart-title">Traffic (Last 30 Days)</div>
+                <div class="chart-container">
+                    <svg width="100%" height="100%" viewBox="0 0 800 250" preserveAspectRatio="xMidYMid meet">
+                        <defs>
+                            <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#6366f1;stop-opacity:0.3" />
+                                <stop offset="100%" style="stop-color:#6366f1;stop-opacity:0" />
+                            </linearGradient>
+                        </defs>
+                        
+                        <!-- Grid lines -->
+                        <line x1="0" y1="50" x2="800" y2="50" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                        <line x1="0" y1="100" x2="800" y2="100" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                        <line x1="0" y1="150" x2="800" y2="150" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                        <line x1="0" y1="200" x2="800" y2="200" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                        
+                        <!-- Area -->
+                        <path d="M0,180 L27,175 L54,170 L81,165 L108,168 L135,163 L162,158 L189,155 L216,150 L243,145 L270,142 L297,138 L324,135 L351,130 L378,125 L405,120 L432,115 L459,110 L486,105 L513,100 L540,95 L567,90 L594,85 L621,80 L648,75 L675,70 L702,65 L729,60 L756,55 L783,50 L800,45 L800,250 L0,250 Z"
+                              fill="url(#areaGradient)"/>
+                        
+                        <!-- Line -->
+                        <path d="M0,180 L27,175 L54,170 L81,165 L108,168 L135,163 L162,158 L189,155 L216,150 L243,145 L270,142 L297,138 L324,135 L351,130 L378,125 L405,120 L432,115 L459,110 L486,105 L513,100 L540,95 L567,90 L594,85 L621,80 L648,75 L675,70 L702,65 L729,60 L756,55 L783,50 L800,45"
+                              stroke="#6366f1" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                        
+                        <!-- Annotations -->
+                        <circle cx="400" cy="120" r="4" fill="#10b981"/>
+                        <text x="400" y="110" fill="#10b981" font-size="13" text-anchor="middle">LinkedIn Post</text>
+                        
+                        <circle cx="600" cy="85" r="4" fill="#a78bfa"/>
+                        <text x="600" y="75" fill="#a78bfa" font-size="13" text-anchor="middle">Newsletter</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Forecast Chart -->
+            <div class="card">
+                <div class="chart-title">Next 7 Days Forecast</div>
+                <div class="chart-container">
+                    <svg width="100%" height="100%" viewBox="0 0 500 250" preserveAspectRatio="xMidYMid meet">
+                        <defs>
+                            <linearGradient id="forecastGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#10b981;stop-opacity:0.2" />
+                                <stop offset="100%" style="stop-color:#10b981;stop-opacity:0" />
+                            </linearGradient>
+                        </defs>
+                        
+                        <!-- Grid -->
+                        <line x1="0" y1="50" x2="500" y2="50" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                        <line x1="0" y1="100" x2="500" y2="100" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                        <line x1="0" y1="150" x2="500" y2="150" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                        <line x1="0" y1="200" x2="500" y2="200" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                        
+                        <!-- Historical line -->
+                        <path d="M0,140 L71,135 L143,130 L214,125 L286,120"
+                              stroke="#6366f1" stroke-width="3" fill="none" stroke-linecap="round"/>
+                        
+                        <!-- Confidence band -->
+                        <path d="M286,120 L357,110 L429,95 L500,85 L500,130 L429,115 L357,120 L286,125 Z"
+                              fill="url(#forecastGradient)" opacity="0.3"/>
+                        
+                        <!-- Predicted line -->
+                        <path d="M286,120 L357,112 L429,105 L500,100"
+                              stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="8,4"/>
+                        
+                        <!-- Optimal publish window marker -->
+                        <circle cx="357" cy="112" r="5" fill="#10b981"/>
+                        <text x="357" y="95" fill="#10b981" font-size="14" text-anchor="middle" font-weight="600">Tue 10am</text>
+                    </svg>
+                    <div class="forecast-annotation">
+                        <div><span style="color:#10b981">▲</span> Optimal publish window: Tuesday 10am</div>
+                        <div style="margin-top: 0.5rem;">Predicted weekly total: 12,400 sessions (+8%)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sources Donut -->
+            <div class="card">
+                <div class="chart-title">Traffic Sources</div>
+                <div class="chart-container" style="display: flex; align-items: center; justify-content: center;">
+                    <svg width="250" height="250" viewBox="0 0 250 250">
+                        <!-- Organic 42% -->
+                        <path d="M 125 125 L 125 25 A 100 100 0 0 1 213.3 88.3 Z" fill="#6366f1" opacity="0.9"/>
+                        <text x="170" y="60" fill="#fff" font-size="14" font-weight="600">42%</text>
+                        <text x="158" y="75" fill="#9ca3af" font-size="11">Organic</text>
+                        
+                        <!-- Social 28% -->
+                        <path d="M 125 125 L 213.3 88.3 A 100 100 0 0 1 213.3 161.7 Z" fill="#10b981" opacity="0.9"/>
+                        <text x="195" y="135" fill="#fff" font-size="14" font-weight="600">28%</text>
+                        <text x="187" y="150" fill="#9ca3af" font-size="11">Social</text>
+                        
+                        <!-- Direct 18% -->
+                        <path d="M 125 125 L 213.3 161.7 A 100 100 0 0 1 88.3 213.3 Z" fill="#a78bfa" opacity="0.9"/>
+                        <text x="140" y="200" fill="#fff" font-size="14" font-weight="600">18%</text>
+                        <text x="135" y="215" fill="#9ca3af" font-size="11">Direct</text>
+                        
+                        <!-- Referral 12% -->
+                        <path d="M 125 125 L 88.3 213.3 A 100 100 0 0 1 125 25 Z" fill="#f59e0b" opacity="0.9"/>
+                        <text x="55" y="135" fill="#fff" font-size="14" font-weight="600">12%</text>
+                        <text x="43" y="150" fill="#9ca3af" font-size="11">Referral</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Intelligence -->
+        <div class="card content-intelligence">
+            <h2><span style="color:#a78bfa">✦</span> Content Intelligence</h2>
+            
+            <!-- Sub-Section A: Recommended Next Articles -->
+            <div class="content-section">
+                <h3>Recommended Next Articles</h3>
+                <table class="content-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">#</th>
+                            <th style="width: 30%;">Topic</th>
+                            <th style="width: 35%;">Why</th>
+                            <th style="width: 20%;">Predicted Performance</th>
+                            <th style="width: 10%;">Confidence</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td><strong>How to Build an AI Automation Stack Under $50/month</strong></td>
+                            <td>Your "AI tools" cluster has 340% more engagement than average. "Budget AI" is trending +180% on Google Trends.</td>
+                            <td>Est. 3,200 views<br>8.4min avg read</td>
+                            <td><span class="confidence-score">92%</span></td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td><strong>The Non-Technical Guide to GA4 Intelligence</strong></td>
+                            <td>Direct response to current audience interest (this dashboard!). Low competition keyword.</td>
+                            <td>Est. 2,800 views<br>6.2min avg read</td>
+                            <td><span class="confidence-score">87%</span></td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td><strong>5 AI Workflows That Replace a Junior Analyst</strong></td>
+                            <td>Your audience's #1 pain point based on comment analysis. High share potential.</td>
+                            <td>Est. 4,100 views<br>5.8min avg read</td>
+                            <td><span class="confidence-score">89%</span></td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td><strong>From Google Apps Script to AI Agents: The Automation Maturity Model</strong></td>
+                            <td>Bridges beginner audience to advanced. Natural upsell path.</td>
+                            <td>Est. 1,900 views<br>7.1min avg read</td>
+                            <td><span class="confidence-score">78%</span></td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td><strong>Why Your Analytics Dashboard is Lying to You</strong></td>
+                            <td>Contrarian hook + your data expertise. Predicted viral potential.</td>
+                            <td>Est. 5,500 views<br>4.9min avg read</td>
+                            <td><span class="confidence-score">84%</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Sub-Section B: Content Performance Scorecard -->
+            <div class="content-section">
+                <h3>Content Performance Scorecard</h3>
+                <table class="content-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 35%;">Article</th>
+                            <th style="width: 12%;">Views</th>
+                            <th style="width: 12%;">Avg Read</th>
+                            <th style="width: 12%;">Completion</th>
+                            <th style="width: 12%;">Converts</th>
+                            <th style="width: 12%;">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>/blog/ai-productivity-tips</td>
+                            <td>4,231</td>
+                            <td>4.2m</td>
+                            <td>67%</td>
+                            <td>12.1%</td>
+                            <td><span class="score-badge score-a-plus">A+</span></td>
+                        </tr>
+                        <tr>
+                            <td>/blog/automation-guide</td>
+                            <td>2,847</td>
+                            <td>3.8m</td>
+                            <td>54%</td>
+                            <td>8.3%</td>
+                            <td><span class="score-badge score-a">A</span></td>
+                        </tr>
+                        <tr>
+                            <td>/blog/chatgpt-vs-claude</td>
+                            <td>3,102</td>
+                            <td>2.1m</td>
+                            <td>31%</td>
+                            <td>3.2%</td>
+                            <td><span class="score-badge score-b-minus">B-</span></td>
+                        </tr>
+                        <tr>
+                            <td>/blog/data-analytics-101</td>
+                            <td>1,923</td>
+                            <td>5.1m</td>
+                            <td>72%</td>
+                            <td>6.7%</td>
+                            <td><span class="score-badge score-a">A</span></td>
+                        </tr>
+                        <tr>
+                            <td>/blog/no-code-tools</td>
+                            <td>2,456</td>
+                            <td>1.9m</td>
+                            <td>28%</td>
+                            <td>2.1%</td>
+                            <td><span class="score-badge score-c-plus">C+</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Sub-Section C: Audience Behavior Patterns -->
+            <div class="content-section">
+                <h3>Audience Behavior Patterns</h3>
+                <ul class="insight-list">
+                    <li>
+                        <span style="color:#10b981">↗</span> 67% of users who read AI articles visit /pricing within 48h → <strong>Add CTA banners to AI posts (est. +15% conversions)</strong>
+                    </li>
+                    <li>
+                        <span style="color:#6366f1">◎</span> Peak engagement: Tuesday & Wednesday, 10am-2pm EST → <strong>Schedule all major posts in this window</strong>
+                    </li>
+                    <li>
+                        <span style="color:#a78bfa">↻</span> Returning visitors read 2.4x more articles per session than new users → <strong>Prioritize email capture on first visit</strong>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Competitor Pulse -->
+        <div class="card competitor-pulse">
+            <h3>Competitor Pulse</h3>
+            <p class="subtitle">3 competitors published on similar topics this week</p>
+            <table class="content-table">
+                <thead>
+                    <tr>
+                        <th style="width: 18%;">Competitor</th>
+                        <th style="width: 28%;">Article</th>
+                        <th style="width: 18%;">Their Engagement</th>
+                        <th style="width: 26%;">Your Opportunity</th>
+                        <th style="width: 10%;">Insights</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Site A</td>
+                        <td>"AI Tools Review"</td>
+                        <td>2.1K shares</td>
+                        <td>You rank higher — publish a response post</td>
+                        <td><span class="insights-link" data-modal="modal1">View Full Analysis →</span></td>
+                    </tr>
+                    <tr>
+                        <td>Site B</td>
+                        <td>"GA4 Tips 2026"</td>
+                        <td>890 views</td>
+                        <td>Weak content — you can own this keyword</td>
+                        <td><span class="insights-link" data-modal="modal2">View Full Analysis →</span></td>
+                    </tr>
+                    <tr>
+                        <td>Site C</td>
+                        <td>"Automation Guide"</td>
+                        <td>3.4K shares</td>
+                        <td>Strong — differentiate with "agent" angle</td>
+                        <td><span class="insights-link" data-modal="modal3">View Full Analysis →</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="card activity-feed">
+            <div class="activity-header">
+                <h3><span class="status-red">●</span> Real-Time Activity</h3>
+                <div class="refresh-control">
+                    <div class="cluster-summary" id="cluster-summary">
+                        <span class="cluster-item"><span class="status-green">●</span> <span id="count-new">12</span> New</span>
+                        <span class="cluster-item"><span class="status-blue">●</span> <span id="count-returning">8</span> Returning</span>
+                        <span class="cluster-item"><span class="status-gold">●</span> <span id="count-conversions">3</span> Conversions</span>
+                        <span class="cluster-item"><span class="status-red">●</span> <span id="count-alerts">1</span> Alert</span>
+                    </div>
+                    <button class="refresh-btn" id="refresh-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2">
+                            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                        </svg>
+                    </button>
+                    <span class="refresh-status" id="refresh-status">Last refresh: just now</span>
+                </div>
+            </div>
+            <div class="activity-list" id="activity-list"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="tagline">Powered by Florian Ziesche's AI Agent System · <a href="https://finitematter.substack.com" target="_blank">finitematter.substack.com</a></div>
+            <div class="demo-note">Demo mode — connect to GA4 in minutes</div>
+        </div>
+    </div>
+
+    <!-- Modal Overlays -->
+    <div class="modal-overlay" id="modal1">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('modal1')">✕</button>
+            <div class="modal-report">Competitive Analysis Report: Site A — "AI Tools Review"
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Published: Feb 8, 2026 | 2.1K social shares | Est. 8,400 views
+
+Content Gap Analysis:
+- Their article covers 12 tools, but misses 4 that your audience searches for
+- Keyword overlap: 67% — you compete directly on "best AI tools 2026"
+- Their weakness: No hands-on testing, just feature lists
+- Your advantage: You BUILD with these tools daily
+
+Recommended Response:
+Write "I Tested 15 AI Tools So You Don't Have To — Here's What Actually Works"
+- Target: 5,500 views (est.)
+- Publish window: Within 72 hours while topic is hot
+- Distribution: LinkedIn first, then newsletter</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal2">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('modal2')">✕</button>
+            <div class="modal-report">Competitive Analysis Report: Site B — "GA4 Tips 2026"
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Published: Feb 9, 2026 | 890 views | 42 social shares
+
+Threat Level: LOW
+
+Analysis:
+- Surface-level content (beginner advice only)
+- Low engagement: avg. 1.2min read time
+- No unique insights or data
+- Poor SEO optimization (missing key long-tail keywords)
+
+Your Opportunity:
+This keyword is WIDE OPEN. Their traffic is minimal and content quality is weak.
+
+Recommended Action:
+Publish "The GA4 Intelligence Playbook: How to Turn Analytics Into Action"
+- Angle: Advanced + actionable (not basic tips)
+- Include: Real dashboard examples, automation workflows
+- Target: 3,200 views in first week
+- Estimated rank: Top 3 within 30 days</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal3">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('modal3')">✕</button>
+            <div class="modal-report">Competitive Analysis Report: Site C — "Automation Guide"
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Published: Feb 7, 2026 | 3.4K shares | Est. 12,000 views
+
+Threat Level: HIGH
+
+Analysis:
+- Strong content: comprehensive, well-structured
+- High engagement: 6.8min avg. read time
+- Author credibility: 15K Twitter following
+- Keyword ranking: #2 for "automation workflow guide"
+
+Their Weakness:
+- Generic advice (applies to any industry)
+- No "AI agent" angle — they focus on traditional automation
+- Missing: The shift from scripts → autonomous agents
+
+Your Differentiation Strategy:
+Don't compete head-to-head. Go DEEPER on the agent paradigm.
+
+Recommended Counter-Post:
+"From Automation to Autonomy: Why AI Agents Are Replacing Workflows"
+- Positioning: The NEXT evolution (they're teaching the old way)
+- Hook: "Automation is dead. Agents are the new automation."
+- Target: 4,800 views | Capture their audience looking for "what's next"</div>
+        </div>
+    </div>
+
+    <script>
+        // Live Clock
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+            document.getElementById('live-time').textContent = timeString;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // CountUp Animation for KPIs
+        function countUp(element, target, duration = 2000, isTime = false, isPercentage = false) {
+            const start = 0;
+            const increment = target / (duration / 16);
+            let current = start;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+
+                if (isTime) {
+                    const minutes = Math.floor(current);
+                    const seconds = Math.round((current - minutes) * 60);
+                    element.textContent = `${minutes}m ${seconds}s`;
+                } else if (isPercentage) {
+                    element.textContent = current.toFixed(1) + '%';
+                } else {
+                    element.textContent = Math.floor(current).toLocaleString();
+                }
+            }, 16);
+        }
+
+        // Modal Management
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Activity Feed Data
+        const activityTemplates = {
+            new: [
+                { icon: 'status-green', text: 'New user from {city} — {page} — via {source}', cities: ['San Francisco', 'Berlin', 'London', 'Tokyo', 'Sydney', 'São Paulo', 'Paris', 'Amsterdam'], pages: ['/blog/ai-agents', '/blog/productivity-hacks', '/blog/ai-productivity-tips', '/about', '/pricing'], sources: ['LinkedIn', 'Twitter', 'Google', 'referral (techcrunch.com)', 'Telegram'] }
+            ],
+            returning: [
+                { icon: 'status-blue', text: 'Returning user from {city} — {page} — via {source}', cities: ['New York', 'London', 'Paris', 'Berlin', 'Amsterdam', 'Toronto'], pages: ['/pricing', '/blog/ai-agents', '/blog/productivity-hacks', '/contact', '/blog/ai-productivity-tips'], sources: ['Google', 'direct', 'LinkedIn', 'Twitter'] }
+            ],
+            conversions: [
+                { icon: 'status-gold', text: 'Signup: {email} — Source: {source} — Keyword: \'{keyword}\'', emails: ['john@company.com', 'sarah@startup.io', 'mike@agency.com', 'lisa@tech.io', 'alex@venture.capital'], sources: ['organic/google', 'social/linkedin', 'social/twitter', 'referral/medium'], keywords: ['ai automation tools', 'ai-tips-2024', 'ga4 analytics', 'ai workflow automation', 'productivity ai'] }
+            ],
+            alerts: [
+                { icon: 'status-red', text: 'Bot detected: {count} requests/sec from {ip} — auto-blocked', counts: [14, 18, 22, 31], ips: ['185.x.x.x', '92.x.x.x', '104.x.x.x', '217.x.x.x'] },
+                { icon: 'status-red', text: 'High bounce: user left {page} after {seconds} seconds — {device}', pages: ['/pricing', '/contact', '/blog/chatgpt-vs-claude'], seconds: [12, 8, 15, 10], devices: ['mobile Safari', 'Chrome Android', 'Firefox Windows'] },
+                { icon: 'status-red', text: 'Suspicious pattern: {count} identical sessions from {ip} — investigating', counts: [8, 12, 6, 9], ips: ['92.x.x.x', '185.x.x.x', '45.x.x.x'] }
+            ]
+        };
+
+        function generateActivity(type) {
+            const templates = activityTemplates[type];
+            const template = templates[Math.floor(Math.random() * templates.length)];
+            let text = template.text;
+            
+            if (template.cities) text = text.replace('{city}', template.cities[Math.floor(Math.random() * template.cities.length)]);
+            if (template.pages) text = text.replace('{page}', template.pages[Math.floor(Math.random() * template.pages.length)]);
+            if (template.sources) text = text.replace('{source}', template.sources[Math.floor(Math.random() * template.sources.length)]);
+            if (template.emails) text = text.replace('{email}', template.emails[Math.floor(Math.random() * template.emails.length)]);
+            if (template.keywords) text = text.replace('{keyword}', template.keywords[Math.floor(Math.random() * template.keywords.length)]);
+            if (template.counts) text = text.replace('{count}', template.counts[Math.floor(Math.random() * template.counts.length)]);
+            if (template.ips) text = text.replace('{ip}', template.ips[Math.floor(Math.random() * template.ips.length)]);
+            if (template.seconds) text = text.replace('{seconds}', template.seconds[Math.floor(Math.random() * template.seconds.length)]);
+            if (template.devices) text = text.replace('{device}', template.devices[Math.floor(Math.random() * template.devices.length)]);
+            
+            return { icon: template.icon, text };
+        }
+
+        function generateActivityFeed() {
+            const types = ['new', 'new', 'new', 'new', 'new', 'new', 'new', 'new', 'new', 'new', 'new', 'new',
+                          'returning', 'returning', 'returning', 'returning', 'returning', 'returning', 'returning', 'returning',
+                          'conversions', 'conversions', 'conversions',
+                          'alerts'];
+            
+            const shuffled = types.sort(() => Math.random() - 0.5);
+            
+            const activityList = document.getElementById('activity-list');
+            activityList.innerHTML = '';
+            
+            let counts = { new: 0, returning: 0, conversions: 0, alerts: 0 };
+            
+            shuffled.forEach(type => {
+                counts[type]++;
+                const activity = generateActivity(type);
+                const item = document.createElement('div');
+                item.className = 'activity-item';
+                item.innerHTML = `<span class="icon ${activity.icon}">●</span> ${activity.text}`;
+                activityList.appendChild(item);
+            });
+            
+            document.getElementById('count-new').textContent = counts.new;
+            document.getElementById('count-returning').textContent = counts.returning;
+            document.getElementById('count-conversions').textContent = counts.conversions;
+            document.getElementById('count-alerts').textContent = counts.alerts;
+        }
+
+        // Refresh Button
+        document.getElementById('refresh-btn').addEventListener('click', function() {
+            const btn = this;
+            const status = document.getElementById('refresh-status');
+            
+            btn.classList.add('spinning');
+            status.textContent = 'Last refresh: refreshing...';
+            
+            setTimeout(() => {
+                generateActivityFeed();
+                btn.classList.remove('spinning');
+                status.textContent = 'Last refresh: just now';
+            }, 1000);
+        });
+
+        // Animate all KPI values
+        document.addEventListener('DOMContentLoaded', () => {
+            const kpiValues = document.querySelectorAll('.kpi-card .value');
+            
+            kpiValues.forEach((el, index) => {
+                const target = parseFloat(el.getAttribute('data-target'));
+                if (index === 2) {
+                    countUp(el, 4.2, 2000, true);
+                } else if (index === 3) {
+                    countUp(el, 34.2, 2000, false, true);
+                } else {
+                    countUp(el, target, 2000);
+                }
+            });
+
+            // Generate initial activity feed
+            generateActivityFeed();
+
+            // Auto-scroll activity feed
+            const activityList = document.getElementById('activity-list');
+            let scrollPosition = 0;
+            
+            setInterval(() => {
+                scrollPosition += 1;
+                if (scrollPosition >= activityList.scrollHeight - activityList.clientHeight) {
+                    scrollPosition = 0;
+                }
+                activityList.scrollTop = scrollPosition;
+            }, 100);
+
+            // Fade in cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+
+            // Modal link handlers
+            document.querySelectorAll('.insights-link').forEach(link => {
+                link.addEventListener('click', function() {
+                    const modalId = this.getAttribute('data-modal');
+                    document.getElementById(modalId).classList.add('active');
+                });
+            });
+
+            // Close modal on overlay click
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Chat chips interaction
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                const input = document.querySelector('.chat-input input');
+                input.value = this.textContent;
+                input.focus();
+            });
+        });
+    </script>
+</body>
+</html>
